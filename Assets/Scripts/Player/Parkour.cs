@@ -190,9 +190,16 @@ namespace Assets.Scripts.Player
 			}
 		}
 
+
+		// Called by animation event, it is time to jump, handles full vs short hop
 		public void JumpVelocity() 
 		{
-			rigidbody.velocity = Vector3.up*8f;
+			// If the jump button is still being held, full hop
+			if ((ControllerManager.instance.GetButton(ControllerInputWrapper.Buttons.A,controller.ID)))
+				rigidbody.velocity = Vector3.up*8f;
+			// else short hop
+			else
+				rigidbody.velocity = Vector3.up*5f;
 		}
 
 		void OnCollisionStay(Collision other) 
