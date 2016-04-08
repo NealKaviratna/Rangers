@@ -116,7 +116,7 @@ namespace Assets.Scripts.Player
 		protected void GrabToken()
 		{
 			if (!ArcheryComponent.CanCollectToken()) return;
-			Collider[] cols = Physics.OverlapSphere(transform.position, 1f);
+			Collider[] cols = Physics.OverlapSphere(transform.position + new Vector3(0, 2.5f, 0), 1f);
 			for(int i = 0; i < cols.Length; i++)
 			{
 				if(cols[i].GetComponent<ArrowToken>() != null)
@@ -129,6 +129,15 @@ namespace Assets.Scripts.Player
 					}
 				}
 			}
+		}
+
+		/// <summary>
+		/// Checks if the controller is holding the jump button.
+		/// </summary>
+		/// <returns>Whether the controller is holding the jump button.</returns>
+		internal virtual bool IsHoldingJump()
+		{
+			return false;
 		}
 
         #region C# Properties

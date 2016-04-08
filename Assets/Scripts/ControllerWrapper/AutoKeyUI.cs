@@ -8,7 +8,9 @@ public class AutoKeyUI : MonoBehaviour {
 
 	private PlayerID prevID = PlayerID.None;
 
-	private enum Type {Button, Axis, Trigger};
+	private ControllerManager.ControlType prevControlType = ControllerManager.ControlType.None;
+
+	private enum Type {Button, Axis, Trigger, DPAD, LJOY, RJOY};
 
 	[SerializeField]
 	private Type type;
@@ -21,21 +23,24 @@ public class AutoKeyUI : MonoBehaviour {
 	// Use this for initialization
 	void OnEnable () {
 		if(GetComponent<Image>() != null) uiImage = true;
-		if(uiImage) GetComponent<Image>().sprite = null;
-		else GetComponent<SpriteRenderer>().sprite = null;
+//		if(uiImage) GetComponent<Image>().sprite = null;
+//		else GetComponent<SpriteRenderer>().sprite = null;
 
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		
+
 		if(ControllerManager.instance.NumPlayers < (int)id) return;
-		if(prevID == id) return;
 		if(id == PlayerID.None) {
 			if(!uiImage) GetComponent<SpriteRenderer>().sprite = null;
+			
+			prevControlType = ControllerManager.ControlType.None;
 		}
+		if(prevID == id && prevControlType == ControllerManager.instance.PlayerControlType(id)) return;
 
 		prevID = id;
+		prevControlType = ControllerManager.instance.PlayerControlType(id);
 
 		switch(type) {
 		case Type.Axis:
@@ -144,9 +149,6 @@ public class AutoKeyUI : MonoBehaviour {
 					break;
 				}
 				break;
-			case ControllerInputWrapper.Buttons.LeftBumper:
-
-				break;
 			case ControllerInputWrapper.Buttons.LeftStickClick:
 				switch(ControllerManager.instance.PlayerControlType(id)) {
 				case ControllerManager.ControlType.Keyboard:
@@ -167,7 +169,42 @@ public class AutoKeyUI : MonoBehaviour {
 				}
 				break;
 			case ControllerInputWrapper.Buttons.RightBumper:
-
+				switch(ControllerManager.instance.PlayerControlType(id)) {
+				case ControllerManager.ControlType.Keyboard:
+					if(uiImage) {
+						GetComponent<Image>().sprite = InputTester.instance.KEY_RB;
+					} else {
+						GetComponent<SpriteRenderer>().sprite = InputTester.instance.KEY_RB;
+					}
+					break;
+				case ControllerManager.ControlType.PS4:
+				case ControllerManager.ControlType.Xbox:
+					if(uiImage) {
+						GetComponent<Image>().sprite = InputTester.instance.RB;
+					} else {
+						GetComponent<SpriteRenderer>().sprite = InputTester.instance.RB;
+					}
+					break;
+				}
+				break;
+			case ControllerInputWrapper.Buttons.LeftBumper:
+				switch(ControllerManager.instance.PlayerControlType(id)) {
+				case ControllerManager.ControlType.Keyboard:
+					if(uiImage) {
+						GetComponent<Image>().sprite = InputTester.instance.KEY_LB;
+					} else {
+						GetComponent<SpriteRenderer>().sprite = InputTester.instance.KEY_LB;
+					}
+					break;
+				case ControllerManager.ControlType.PS4:
+				case ControllerManager.ControlType.Xbox:
+					if(uiImage) {
+						GetComponent<Image>().sprite = InputTester.instance.LB;
+					} else {
+						GetComponent<SpriteRenderer>().sprite = InputTester.instance.LB;
+					}
+					break;
+				}
 				break;
 			case ControllerInputWrapper.Buttons.RightStickClick:
 				switch(ControllerManager.instance.PlayerControlType(id)) {
@@ -189,7 +226,29 @@ public class AutoKeyUI : MonoBehaviour {
 				}
 				break;
 			case ControllerInputWrapper.Buttons.Start:
-
+				switch(ControllerManager.instance.PlayerControlType(id)) {
+				case ControllerManager.ControlType.Keyboard:
+					if(uiImage) {
+						GetComponent<Image>().sprite = InputTester.instance.KEY_START;
+					} else {
+						GetComponent<SpriteRenderer>().sprite = InputTester.instance.KEY_START;
+					}
+					break;
+				case ControllerManager.ControlType.Xbox:
+					if(uiImage) {
+						GetComponent<Image>().sprite = InputTester.instance.XBOX_START;
+					} else {
+						GetComponent<SpriteRenderer>().sprite = InputTester.instance.XBOX_START;
+					}
+					break;
+				case ControllerManager.ControlType.PS4:
+					if(uiImage) {
+						GetComponent<Image>().sprite = InputTester.instance.PS4_START;
+					} else {
+						GetComponent<SpriteRenderer>().sprite = InputTester.instance.PS4_START;
+					}
+					break;
+				}
 				break;
 			case ControllerInputWrapper.Buttons.X:
 				switch(ControllerManager.instance.PlayerControlType(id)) {
@@ -241,10 +300,54 @@ public class AutoKeyUI : MonoBehaviour {
 					break;
 				}
 				break;
+			case ControllerInputWrapper.Buttons.Back:
+				switch(ControllerManager.instance.PlayerControlType(id)) {
+				case ControllerManager.ControlType.Keyboard:
+					if(uiImage) {
+						GetComponent<Image>().sprite = InputTester.instance.KEY_BACK;
+					} else {
+						GetComponent<SpriteRenderer>().sprite = InputTester.instance.KEY_BACK;
+					}
+					break;
+				case ControllerManager.ControlType.Xbox:
+					if(uiImage) {
+						GetComponent<Image>().sprite = InputTester.instance.XBOX_BACK;
+					} else {
+						GetComponent<SpriteRenderer>().sprite = InputTester.instance.XBOX_BACK;
+					}
+					break;
+				case ControllerManager.ControlType.PS4:
+					if(uiImage) {
+						GetComponent<Image>().sprite = InputTester.instance.PS4_BACK;
+					} else {
+						GetComponent<SpriteRenderer>().sprite = InputTester.instance.PS4_BACK;
+					}
+					break;
+				}
+				break;
 			}
 			break;
 		case Type.Trigger:
 
+			break;
+		case Type.DPAD:
+			switch(ControllerManager.instance.PlayerControlType(id)) {
+			case ControllerManager.ControlType.Keyboard:
+				if(uiImage) {
+					GetComponent<Image>().sprite = InputTester.instance.KEY_UPDOWNLEFTRIGHT;
+				} else {
+					GetComponent<SpriteRenderer>().sprite = InputTester.instance.KEY_UPDOWNLEFTRIGHT;
+				}
+				break;
+			case ControllerManager.ControlType.PS4:
+			case ControllerManager.ControlType.Xbox:
+				if(uiImage) {
+					GetComponent<Image>().sprite = InputTester.instance.DPAD_LEFTRIGHTUPDOWN;
+				} else {
+					GetComponent<SpriteRenderer>().sprite = InputTester.instance.DPAD_LEFTRIGHTUPDOWN;
+				}
+				break;
+			}
 			break;
 		}
 	}

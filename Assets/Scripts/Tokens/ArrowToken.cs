@@ -40,6 +40,7 @@ namespace Assets.Scripts.Tokens
 			if(collected) {
 				transform.localScale += new Vector3(Time.deltaTime*transform.localScale.x,-Time.deltaTime*transform.localScale.y*10f,0f);
 				if(transform.localScale.y <= 0.1f) {
+					transform.localScale = Vector3.one;
 					collected = false;
 					GetComponent<Collider>().enabled = true;
 					gameObject.SetActive(false);

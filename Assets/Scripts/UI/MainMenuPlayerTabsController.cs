@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using Assets.Scripts.UI;
 
 public class MainMenuPlayerTabsController : MonoBehaviour {
 
@@ -12,7 +13,7 @@ public class MainMenuPlayerTabsController : MonoBehaviour {
 	private float AIADDDELAY = 0.15f;
 
 	// Use this for initialization
-	void Start () {
+	void OnEnable () {
 		for(int i = 0; i < infoBlocks.Length; i++) {
 			infoBlocks[i] = transform.GetChild(i).GetComponent<MainMenuPlayerInfoBlock>();
 		}
@@ -23,7 +24,16 @@ public class MainMenuPlayerTabsController : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		if(ControllerManager.instance.AddPlayer(ControllerInputWrapper.Buttons.Start)) {
-			infoBlocks[ControllerManager.instance.NumPlayers - 1].PlayerAdded();
+			if (ControllerManager.instance.CountAI() == ControllerManager.instance.NumPlayers - 1) {
+				for (int i = Mathf.Min(3, ControllerManager.instance.NumPlayers - 1); i > 0; i--) {
+					infoBlocks[i].SetTag("AI " + (i + 1));
+					infoBlocks[i].HidePressToJoinGraphic(false);
+				}
+				ProfileManager.instance.ShiftProfiles();
+				infoBlocks[0].PlayerAdded();
+			} else {
+				infoBlocks[ControllerManager.instance.NumPlayers - 1].PlayerAdded();
+			}
 		}
 		int removedPlayer = ControllerManager.instance.AllowPlayerRemoval(ControllerInputWrapper.Buttons.Back);
 		if(removedPlayer >= 1) {
@@ -39,6 +49,13 @@ public class MainMenuPlayerTabsController : MonoBehaviour {
 				RemovePlayer(removedPlayer - 1);
 				aiAddTimer = AIADDDELAY;
 			}
+		}
+
+		if(ControllerManager.instance.NumPlayers == 0) {
+			foreach (MainMenuPlayerInfoBlock block in infoBlocks) {
+				block.ResetMenu();
+			}
+			MenuManager.instance.CallSplash();
 		}
 
 		aiAddTimer -= Time.deltaTime;

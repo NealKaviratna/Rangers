@@ -54,7 +54,18 @@ namespace Assets.Scripts.UI
             {
                 Destroy(gameObject);
             }
+				
         }
+
+		void OnEnable() {
+			if(ControllerManager.instance.NumPlayers > 0) {
+				state = Enums.UIStates.Main;
+				UpdatePanels(MainPanel);
+				PlayerPanel.gameObject.SetActive(true);
+				PlayerPanel.SetAsFirstSibling();
+				menuTitle.SetActive(true);
+			}
+		}
 
         void Update()
         {
@@ -133,14 +144,18 @@ namespace Assets.Scripts.UI
 		{
 			if (ControllerManager.instance.GetButtonDown(ControllerInputWrapper.Buttons.B, PlayerID.One))
 			{
+				SignInPanel.FindChild("NameCreator").FindChild("LetterHolder").GetComponent<NameCreator>().Reset();
 				state = Enums.UIStates.Splash;
 				UpdatePanels(SplashPanel);
 				SFXManager.instance.PlayNegative();
+				ControllerManager.instance.AllowPlayerRemoval(ControllerInputWrapper.Buttons.B);
 			}
 			if (ControllerManager.instance.GetButtonDown(ControllerInputWrapper.Buttons.Start, PlayerID.One))
 			{
-				string text = SignInPanel.FindChild("NameCreator").FindChild("LetterHolder").GetComponent<NameCreator>().t.text;
+				NameCreator nameCreator = SignInPanel.FindChild("NameCreator").FindChild("LetterHolder").GetComponent<NameCreator>();
+				string text = nameCreator.t.text;
 				if(text.Length > 0 && text.ToCharArray()[text.Length-1] != ' ') {
+					nameCreator.Reset();
 					ProfileData pd = new ProfileData(text);
 					ProfileManager.instance.AddProfile(pd);
 					SignInToMain();
@@ -237,6 +252,7 @@ namespace Assets.Scripts.UI
 
 		public void GoToGame(MapSelector selection) {
 			string selectedMap = selection.arenaSelector ? ((Enums.BattleStages)selection.currentSelectedMap).ToString() : ((Enums.TargetPracticeStages)selection.currentSelectedMap).ToString();
+			GameManager.lastLoadedLevel = selectedMap;
 			if(ProfileManager.instance.NumSignedIn() > 1) SceneManager.LoadScene(selectedMap, LoadSceneMode.Single);
 		}
 
@@ -305,7 +321,7 @@ namespace Assets.Scripts.UI
 
         private void Navigate()
         {
-			if (PlayerOneChoosingName())
+			if (PlayerOneOccupied())
 			{
 				return;
 			}
@@ -452,6 +468,14 @@ namespace Assets.Scripts.UI
             UpdatePanels(SettingPanel);
         }
 
+		public void CallSplash()
+		{
+			state = Enums.UIStates.Splash;
+			PlayerPanel.gameObject.SetActive(false);
+			menuTitle.SetActive(false);
+			UpdatePanels(SplashPanel);
+		}
+
         public void CallAudio()
         {
             state = Enums.UIStates.Audio;
@@ -499,13 +523,13 @@ namespace Assets.Scripts.UI
         }
 
 		/// <summary>
-		/// Checks if player one is choosing a name.
+		/// Checks if player one is occupied in a tab menu.
 		/// </summary>
-		/// <returns>Whether player one is choosing a name.</returns>
-		private bool PlayerOneChoosingName()
+		/// <returns>Whether player one is occupied in a tab menu.</returns>
+		private bool PlayerOneOccupied()
 		{
 			MainMenuPlayerInfoBlock block = TabsPanel.GetBlock(0);
-			return block == null ? false : block.ChoosingName();
+			return block == null ? false : block.Occupied();
 		}
     }
 }
